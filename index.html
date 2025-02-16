@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CGPA, GPA & Percentage Converter</title>
+    <!-- Bootstrap CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">CGPA & GPA Converter</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">CGPA to Percentage</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">GPA Conversion</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Grade Calculator</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM via CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <!-- Babel for JSX support -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body class="bg-gray-100">
+    <div id="root"></div>
+    <script type="text/babel">
+      // Destructure React hooks for cleaner code
+      const { useState } = React;
+
+      // Header component: Introduces the tool
+      function Header() {
+        return (
+          <header className="bg-blue-600 text-white p-6 rounded text-center">
+            <h1 className="text-3xl font-bold">
+              CGPA, GPA & Percentage Converter
+            </h1>
+            <p className="mt-2">
+              A professional tool for Indian students and employees.
+            </p>
+          </header>
+        );
+      }
+
+      // TabNavigation component: Handles switching between features
+      function TabNavigation({ activeTab, setActiveTab }) {
+        const tabs = [
+          { id: "cgpaPercentage", label: "CGPA ⟷ Percentage" },
+          { id: "gradeCalculator", label: "Grade Calculator" },
+          { id: "gpaConversion", label: "GPA Conversion" },
+          { id: "conversionTable", label: "Conversion Table" },
+        ];
+        return (
+          <div className="flex flex-wrap gap-4 mb-6">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-2 rounded ${
+                  activeTab === tab.id
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-800"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        );
+      }
+
+      // CGPA ⟷ Percentage Converter component
+      function CgpaPercentageConverter() {
+        const [value, setValue] = useState("");
+        const [university, setUniversity] = useState("default");
+        const [percentageResult, setPercentageResult] = useState(null);
+        const [scale, setScale] = useState("10"); // Options: "10", "4", "5"
+
+        // Calculate percentage based on selected scale and, if on 10-point scale, the university conversion formula.
+        const calculatePercentage = () => {
+          const inputVal = parseFloat(value);
+          if (isNaN(inputVal)) {
+            setPercentageResult("Please enter a valid number.");
+            return;
+          }
+          let result;
+          if (scale === "10") {
+            if (inputVal < 0 || inputVal > 10) {
+              setPercentageResult(
+                "For 10 point scale, enter a value between 0 and 10."
+              );
+              return;
+            }
+            // Conversion formulas for various Indian universities
+            if (university === "vtu") {
+              result = ((inputVal - 0.75) * 10).toFixed(2);
+            } else if (university === "anna") {
+              result = ((inputVal - 0.5) * 10).toFixed(2);
+            } else if (university === "mumbai") {
+              result = (inputVal * 10).toFixed(2);
+            } else {
+              result = (inputVal * 9.5).toFixed(2);
+            }
+          } else if (scale === "4") {
+            if (inputVal < 0 || inputVal > 4) {
+              setPercentageResult(
+                "For 4.0 scale, enter a value between 0 and 4."
+              );
+              return;
+            }
+            result = ((inputVal / 4) * 100).toFixed(2);
+          } else if (scale === "5") {
+            if (inputVal < 0 || inputVal > 5) {
+              setPercentageResult(
+                "For 5.0 scale, enter a value between 0 and 5."
+              );
+              return;
+            }
+            result = ((inputVal / 5) * 100).toFixed(2);
+          }
+          setPercentageResult(`Percentage: ${result}%`);
+        };
+
+        return (
+          <div>
+            <div className="mb-4">
+              <label htmlFor="scale" className="block text-gray-700">
+                Select Grading Scale
+              </label>
+              <select
+                id="scale"
+                value={scale}
+                onChange={(e) => setScale(e.target.value)}
+                className="w-full p-2 mt-1 border border-gray-300 rounded"
+              >
+                <option value="10">10.0 Scale (CGPA)</option>
+                <option value="4">4.0 Scale (GPA)</option>
+                <option value="5">5.0 Scale (GPA)</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="value" className="block text-gray-700">
+                Enter your {scale === "10" ? "CGPA" : "GPA"}
+              </label>
+              <input
+                type="number"
+                id="value"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                min="0"
+                max={scale === "10" ? "10" : scale === "4" ? "4" : "5"}
+                step="0.01"
+                placeholder={`Enter value on ${scale} scale`}
+                className="w-full p-2 mt-1 border border-gray-300 rounded"
+              />
+            </div>
+            {scale === "10" && (
+              <div className="mb-4">
+                <label htmlFor="university" className="block text-gray-700">
+                  Select Your University (For CGPA conversion)
+                </label>
+                <select
+                  id="university"
+                  value={university}
+                  onChange={(e) => setUniversity(e.target.value)}
+                  className="w-full p-2 mt-1 border border-gray-300 rounded"
+                >
+                  <option value="default">Default (CGPA × 9.5)</option>
+                  <option value="vtu">VTU ((CGPA - 0.75) × 10)</option>
+                  <option value="anna">Anna University ((CGPA - 0.5) × 10)</option>
+                  <option value="mumbai">Mumbai University (CGPA × 10)</option>
+                </select>
+              </div>
+            )}
+            <button
+              onClick={calculatePercentage}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Calculate Percentage
+            </button>
+            {percentageResult && (
+              <div className="mt-4 p-4 bg-blue-100 text-blue-800 rounded text-center">
+                {percentageResult}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // GradeCalculator component: Calculates average CGPA from subject grades.
+      function GradeCalculator() {
+        const [subjects, setSubjects] = useState([{ id: 1, grade: "10" }]);
+        const [result, setResult] = useState(null);
+
+        const addSubject = () => {
+          const newId = subjects.length + 1;
+          setSubjects([...subjects, { id: newId, grade: "10" }]);
+        };
+
+        const removeSubject = () => {
+          if (subjects.length > 1) {
+            setSubjects(subjects.slice(0, -1));
+          }
+        };
+
+        const calculateCgpa = () => {
+          const total = subjects.reduce(
+            (sum, subj) => sum + parseFloat(subj.grade),
+            0
+          );
+          const average = (total / subjects.length).toFixed(2);
+          const percentage = (average * 9.5).toFixed(2);
+          setResult(
+            `Average CGPA: ${average} | Approx. Percentage: ${percentage}%`
+          );
+        };
+
+        const handleGradeChange = (id, newGrade) => {
+          setSubjects(
+            subjects.map((subj) =>
+              subj.id === id ? { ...subj, grade: newGrade } : subj
+            )
+          );
+        };
+
+        return (
+          <div>
+            <div className="space-y-4 mb-4">
+              {subjects.map((subject) => (
+                <div key={subject.id} className="flex items-center space-x-4">
+                  <label className="text-gray-700">
+                    Subject {subject.id}:
+                  </label>
+                  <select
+                    value={subject.grade}
+                    onChange={(e) =>
+                      handleGradeChange(subject.id, e.target.value)
+                    }
+                    className="p-2 border border-gray-300 rounded"
+                  >
+                    <option value="10">O</option>
+                    <option value="9">A+</option>
+                    <option value="8">A</option>
+                    <option value="7">B+</option>
+                    <option value="6">B</option>
+                    <option value="5">C</option>
+                    <option value="4">D</option>
+                    <option value="0">F</option>
+                  </select>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-4 mb-4">
+              <button
+                onClick={addSubject}
+                className="bg-green-600 text-white px-4 py-2 rounded"
+              >
+                Add Subject
+              </button>
+              <button
+                onClick={removeSubject}
+                className="bg-red-600 text-white px-4 py-2 rounded"
+              >
+                Remove Subject
+              </button>
+              <button
+                onClick={calculateCgpa}
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Calculate CGPA
+              </button>
+            </div>
+            {result && (
+              <div className="mt-4 p-4 bg-blue-100 text-blue-800 rounded text-center">
+                {result}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // GpaConversion component: Converts between GPA (on various scales) and CGPA (10-point)
+      function GpaConversion() {
+        const [inputValue, setInputValue] = useState("");
+        const [conversionType, setConversionType] = useState("gpaToCgpa");
+        const [scale, setScale] = useState("4"); // Options: "4", "5", "10"
+        const [result, setResult] = useState(null);
+
+        const convert = () => {
+          const value = parseFloat(inputValue);
+          if (isNaN(value)) {
+            setResult("Please enter a valid number.");
+            return;
+          }
+          let output;
+          if (conversionType === "gpaToCgpa") {
+            if (scale === "4") {
+              if (value < 0 || value > 4) {
+                setResult("For 4.0 scale, enter a value between 0 and 4.");
+                return;
+              }
+              output = ((value / 4) * 10).toFixed(2);
+            } else if (scale === "5") {
+              if (value < 0 || value > 5) {
+                setResult("For 5.0 scale, enter a value between 0 and 5.");
+                return;
+              }
+              output = ((value / 5) * 10).toFixed(2);
+            } else if (scale === "10") {
+              if (value < 0 || value > 10) {
+                setResult("For 10.0 scale, enter a value between 0 and 10.");
+                return;
+              }
+              output = value.toFixed(2);
+            }
+            setResult(`Equivalent CGPA (10-point scale): ${output}`);
+          } else {
+            // Convert CGPA (10) to GPA on selected scale.
+            if (value < 0 || value > 10) {
+              setResult("For CGPA (10-point scale), enter a value between 0 and 10.");
+              return;
+            }
+            if (scale === "4") {
+              output = ((value / 10) * 4).toFixed(2);
+            } else if (scale === "5") {
+              output = ((value / 10) * 5).toFixed(2);
+            } else if (scale === "10") {
+              output = value.toFixed(2);
+            }
+            setResult(`Equivalent GPA (${scale}-point scale): ${output}`);
+          }
+        };
+
+        return (
+          <div>
+            <div className="mb-4">
+              <label htmlFor="conversionType" className="block text-gray-700">
+                Conversion Type
+              </label>
+              <select
+                id="conversionType"
+                value={conversionType}
+                onChange={(e) => setConversionType(e.target.value)}
+                className="w-full p-2 mt-1 border border-gray-300 rounded"
+              >
+                <option value="gpaToCgpa">GPA to CGPA</option>
+                <option value="cgpaToGpa">CGPA to GPA</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="scaleType" className="block text-gray-700">
+                Select Your GPA Scale
+              </label>
+              <select
+                id="scaleType"
+                value={scale}
+                onChange={(e) => setScale(e.target.value)}
+                className="w-full p-2 mt-1 border border-gray-300 rounded"
+              >
+                <option value="4">4.0 Scale</option>
+                <option value="5">5.0 Scale</option>
+                <option value="10">10.0 Scale</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="inputValue" className="block text-gray-700">
+                Enter{" "}
+                {conversionType === "gpaToCgpa"
+                  ? `GPA (on ${scale}-point scale)`
+                  : "CGPA (10-point scale)"}
+              </label>
+              <input
+                type="number"
+                id="inputValue"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                className="w-full p-2 mt-1 border border-gray-300 rounded"
+                step="0.01"
+              />
+            </div>
+            <button
+              onClick={convert}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Convert
+            </button>
+            {result && (
+              <div className="mt-4 p-4 bg-blue-100 text-blue-800 rounded text-center">
+                {result}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // ConversionTable component: Displays a detailed table mapping CGPA to GPA & Percentage
+      function ConversionTable() {
+        const [searchTerm, setSearchTerm] = useState("");
+        // Generate rows for CGPA values from 0.0 to 10.0 in steps of 0.1.
+        const rows = [];
+        for (let cgpa = 0; cgpa <= 10; cgpa += 0.1) {
+          const cgpaRounded = cgpa.toFixed(1);
+          const gpa4 = ((cgpa / 10) * 4).toFixed(2);
+          const gpa5 = ((cgpa / 10) * 5).toFixed(2);
+          const percentage = (cgpa * 9.5).toFixed(2);
+          rows.push({
+            cgpa: cgpaRounded,
+            gpa4,
+            gpa5,
+            percentage,
+          });
+        }
+        // Filter rows based on search term – enter a CGPA value (e.g., 9.3)
+        const filteredRows = searchTerm
+          ? rows.filter(
+              (row) => row.cgpa === parseFloat(searchTerm).toFixed(1)
+            )
+          : rows;
+
+        return (
+          <div>
+            <div className="mb-4">
+              <label htmlFor="search" className="block text-gray-700">
+                Search by CGPA (e.g., 9.3)
+              </label>
+              <input
+                type="number"
+                id="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                step="0.1"
+                placeholder="Enter CGPA value"
+                className="w-full p-2 mt-1 border border-gray-300 rounded"
+              />
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="bg-blue-600 text-white px-4 py-2">
+                      CGPA (10)
+                    </th>
+                    <th className="bg-blue-600 text-white px-4 py-2">
+                      GPA (4.0)
+                    </th>
+                    <th className="bg-blue-600 text-white px-4 py-2">
+                      GPA (5.0)
+                    </th>
+                    <th className="bg-blue-600 text-white px-4 py-2">
+                      Percentage
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRows.map((row, index) => (
+                    <tr
+                      key={index}
+                      className={index % 2 === 0 ? "bg-gray-100" : ""}
+                    >
+                      <td className="border px-4 py-2 text-center">
+                        {row.cgpa}
+                      </td>
+                      <td className="border px-4 py-2 text-center">
+                        {row.gpa4}
+                      </td>
+                      <td className="border px-4 py-2 text-center">
+                        {row.gpa5}
+                      </td>
+                      <td className="border px-4 py-2 text-center">
+                        {row.percentage}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      }
+
+      // Main App component: Manages tab state and renders the selected component.
+      function App() {
+        const [activeTab, setActiveTab] = useState("cgpaPercentage");
+
+        return (
+          <div className="max-w-4xl mx-auto p-4">
+            <Header />
+            <div className="bg-white p-6 rounded shadow mt-6">
+              <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+              {activeTab === "cgpaPercentage" && <CgpaPercentageConverter />}
+              {activeTab === "gradeCalculator" && <GradeCalculator />}
+              {activeTab === "gpaConversion" && <GpaConversion />}
+              {activeTab === "conversionTable" && <ConversionTable />}
+            </div>
+          </div>
+        );
+      }
+
+      // Render the React App into the root div.
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+    <body class="flex flex-col min-h-screen">
+        <!-- Main Content Wrapper -->
+        <div class="flex-grow">
+            <!-- Your main content goes here -->
+        </div>
+    
+        <!-- How to Use Section -->
+        <section class="bg-gray-100 text-center py-6 px-4">
+            <h2 class="text-2xl font-bold text-gray-800">How to Use</h2>
+            <p class="text-gray-600 mt-2">1. Select the conversion type (CGPA to Percentage or vice versa).</p>
+            <p class="text-gray-600">2. Enter your grades or CGPA.</p>
+            <p class="text-gray-600">3. Click on "Calculate" to get your result instantly.</p>
+        </section>
+    <!-- Footer -->
+    <div class="flex flex-col min-h-screen">
+        <main class="flex-grow">
+            <!-- Your content -->
+        </main>
+    
+        <footer class="bg-gray-900 text-white text-center py-4 mt-auto">
+            © 2025 CGPA & GPA Converter. All rights reserved.
+        </footer>
+    </div>
+
+  </body>
+</html>
